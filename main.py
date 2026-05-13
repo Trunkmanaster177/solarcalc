@@ -4,7 +4,8 @@ main.py
 Flask backend for the Solar PV Yield Calculator.
 """
 
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, Response
+import os
 import io
 import json
 import requests as http_requests
@@ -13,6 +14,11 @@ from nasa_api import fetch_solar_irradiance
 from calculator import run_full_calculation, calculate_monthly_energy, calculate_savings
 
 app = Flask(__name__)
+
+# Read index.html at startup (works on Vercel serverless)
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(_BASE_DIR, "templates", "index.html"), "r", encoding="utf-8") as _f:
+    _INDEX_HTML = _f.read()
 
 try:
     from reportlab.lib.pagesizes import A4
@@ -236,7 +242,7 @@ TARIFF_PRESETS = {
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return Response(_INDEX_HTML, mimetype="text/html")
 
 
 @app.route("/api/presets", methods=["GET"])
